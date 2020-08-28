@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+    postgresdb:
+        env_file:
+            - ./dortt-api/.env
+        image: postgres:latest
+        volumes:
+            - db-data:/home/dortt/postgresdb/data
+        networks:
+            - dortt-network
+        container_name: "postgresdb"
+        restart: "always"
+        ports:
+            - "5432:5432"
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=my-password
+            - POSTGRES_DB=dorttdb
+    dortt-api:
+        build:
+            context: ./dortt-api
+            dockerfile: Dockerfile
+        env_file:
+            - ./dortt-api/.env
+        image: dortt-api
+        volumes:
+            - api-data:/home/dortt/api
+            - node_modules:/home/dortt/api/node_modules
+        environment:
+            - POSTGRES_URL=postgresdb
+        networks:
+            - dortt-network
+        depends_on:
+            - postgresdb
+        container_name: "dortt-api"
+        command: yarn start
+        ports:
+            - "3001:3001"
+        deploy:
+            update_config:
+                parallelism: 2
+            restart_policy:
+                condition: on-failure
+networks:
+    dortt-network:
+volumes: 
+    node_modules:
+    api-data:
+    db-data:
