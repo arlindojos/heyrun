@@ -13,8 +13,8 @@ export async function postMailerAction(request: Request, response: Response) {
         port: 587,
         secure: false, 
         auth: {
-        user: "c8109e35343838",
-        pass: "bc4cfddd1526d6"
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
         },
         tls: {
             rejectUnauthorized: false
